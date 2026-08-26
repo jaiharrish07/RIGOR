@@ -1,0 +1,36 @@
+﻿services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: rigor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rigor
+      POSTGRES_PASSWORD: rigor
+      POSTGRES_DB: rigor
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rigor -d rigor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  grobid:
+    image: lfoppiano/grobid:0.8.1
+    container_name: rigor-grobid
+    restart: unless-stopped
+    ports:
+      - "8070:8070"
+    environment:
+      JAVA_OPTS: "-Xmx4g"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8070/api/isalive"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
