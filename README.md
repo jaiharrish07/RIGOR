@@ -15,7 +15,7 @@ Upload a research paper PDF. RIGOR parses it, then runs a 25-item reproducibilit
 ## Tech stack
 
 - **Backend:** Python 3.11+, FastAPI, SQLAlchemy 2.0, Alembic
-- **Database:** PostgreSQL 17
+- **Database:** PostgreSQL 17 (via Docker Compose)
 - **PDF parsing:** GROBID (containerized)
 - **LLM:** Groq (Llama 3.3 70B), fallback OpenRouter
 - **Frontend:** React + TypeScript (Week 2+)
@@ -25,7 +25,7 @@ Upload a research paper PDF. RIGOR parses it, then runs a 25-item reproducibilit
 
 Prerequisites: Python 3.11+, Docker Desktop, Git, Groq API key.
 
-\\\ash
+```bash
 # 1. Clone
 git clone https://github.com/jaiharrish07/RIGOR.git
 cd RIGOR
@@ -50,12 +50,13 @@ alembic upgrade head
 uvicorn app.main:app --reload
 
 # Open http://localhost:8000/docs
-\\\
+```
 
 ## Documentation
 
 - [Database schema](docs/database_schema.md) — the 5-table data model
 - [API contract](docs/api_contract.md) — HTTP endpoint specification
+- [Database setup](docs/database_setup.md) — bringing up Postgres, migrations, and rollback
 
 ## Project status
 
