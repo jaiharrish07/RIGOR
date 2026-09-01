@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">GoldenTransformer: A Modular Fault Injection Framework for Transformer Robustness Research</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2025-09-13">13 Sep 2025</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author role="corresp">
+							<persName><forename type="first">Luke</forename><surname>Howard</surname></persName>
+							<email>lhhoward.125@gmail.com</email>
+							<affiliation key="aff0">
+								<orgName type="institution">Radnor High School</orgName>
+								<address>
+									<settlement>Radnor</settlement>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">GoldenTransformer: A Modular Fault Injection Framework for Transformer Robustness Research</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2025-09-13">13 Sep 2025</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">CA39CD903A0A5000ADCA536A55F30CEA</idno>
+					<idno type="arXiv">arXiv:2509.10790v1[cs.LG]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.1" ident="GROBID" when="2026-09-01T15:09+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>transformers</term>
+					<term>neural networks</term>
+					<term>natural language processing</term>
+					<term>interpretability</term>
+					<term>resiliency</term>
+					<term>fault injection</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Transformers have become the foundation for a wide range of state-of-the-art models across natural language processing, computer vision, and other machine learning domains. Despite their widespread deployment, the robustness of these models under fault conditions remains underexplored. We present GoldenTransformer, a modular and extensible fault injection framework designed to evaluate the resiliency of Large Language Models (LLMs) to induced hardware faults. Golden-Transformer offers a unified Python-based platform for injecting diverse classes of faults-such as weight corruption, activation injections, and attention-level disruptions-into pretrained transformer-based models. Inspired by the GoldenEye simulator for DNNs, our framework focuses on the unique challenges of working with large transformer architectures, including considerations such as structural complexity, latent dependencies, and nonuniform layer definitions. GoldenTransformer is built atop PyTorch and HuggingFace Transformers, and it supports experiment reproducibility, metric logging, and visualization out of the box. We detail the technical design and use of GoldenTransformer and demonstrate through several example experiments on classification and generation tasks. By enabling controlled injection of faults at multiple logical and structural points in a transformer, GoldenTransformer offers researchers and practitioners a valuable tool for model robustness analysis and for guiding dependable system design in real-world LLM applications. All code for GoldenTransformer can be found at <ref type="url" target="https://github.com/FuzzyNum/goldentransformer">https://github.com/FuzzyNum/goldentransformer</ref> </p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>The deployment of Large Language Models (LLMs) in realworld systems has brought significant attention to their robustness under abnormal or faulty operating conditions. While these models have demonstrated extraordinary performance across a broad spectrum of natural language processing tasks, their internal complexity and computational requirements render them susceptible to faults at various levels-from lowlevel weight corruption to high-level architectural failures. Existing fault injection tools, however, are either too general or tailored for conventional neural networks and fail to capture the nuanced structure of transformer-based architectures. To address this gap, we present GoldenTransformer, a modular and extensible fault injection framework specifically designed for transformer-based LLMs.</p><p>GoldenTransformer provides an open-source framework for fault injection and performance evaluation specifically targeting LLMs. Its design principles draw from prior work such as GoldenEye <ref type="bibr" target="#b0">[1]</ref> but adapt the approach to fit the structural and semantic characteristics of modern LLM architectures. Our contributions include:</p><p>• An extensible framework for injecting various types of faults-including layer-level perturbations, weightlevel corruptions, and activation-level distortions-into transformer-based models.</p><p>• With Built-in metric and visualization support, Golden-Transformer provides documentation and tool for replicable fault experiments across architectures.</p><p>• GoldenTransformer provides a structured and reproducible experimentation pipeline for analyzing the resilience of neural networks. The goal is not only to serve as a testing platform but also to aid in developing more robust LLM architectures.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. RELATED WORK</head><p>Fault injection has long been used in hardware and software testing to evaluate system robustness. <ref type="bibr" target="#b1">[2]</ref> demonstrates that single bit flips errors can cause minor application-level perturbations in DNNs. Research into neural network fault tolerance has expanded as deep learning systems become integral to mission-critical applications. Existing tools like TensorFI <ref type="bibr" target="#b2">[3]</ref>, <ref type="bibr" target="#b3">[4]</ref>, <ref type="bibr" target="#b4">[5]</ref>, PyTorchFI <ref type="bibr" target="#b5">[6]</ref>, and GoldenEye <ref type="bibr" target="#b0">[1]</ref> have offered fault injection capabilities for CNNs and smaller-scale architectures. GoldenEye, in particular, introduced a flexible fault simulator for evaluating numerical formats and single-or multi-bit corruption in PyTorch-based DNNs. Similarly, BinFI <ref type="bibr" target="#b6">[7]</ref> outlined a comprehensive framework to locate critical bits through fault injection, but limited their approach to CNN architectures only. These tools focus predominantly on CNNs or general feedforward architectures and often provide limited support for transformers. Moreover, their injection techniques tend to be coarse-grained, such as zeroing out random neurons or weights, which is insufficient for studying the structured and hierarchical nature of LLMs.</p><p>Most existing transformer robustness studies focus on adversarial inputs, corrupted training data, or model distillation. For example, TextAttack <ref type="bibr" target="#b7">[8]</ref> established a framework for LLM adversarial attacks based on the mutation of input sequences to language models. While this and other approaches such as <ref type="bibr" target="#b8">[9]</ref> [10] <ref type="bibr" target="#b10">[11]</ref> are crucial, they do not simulate low-level internal or mathematical faults. Some recent works have explored quantization-induced errors or hardware-aware pruning, but these approaches remain disjoint from general-purpose fault injection research.</p><p>GoldenTransformer builds on the conceptual foundation laid by GoldenEye and PyTorchFI but introduces LLM-specific functionality. This includes layer-level manipulation of attention modules, adaptive dropout-based fault models, and attention mask corruption-capabilities not present in prior work. To our knowledge, this is the first transformer-specific open-source fault injection toolkit.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. SYSTEM DESIGN</head><p>GoldenTransformer is built on PyTorch <ref type="bibr" target="#b11">[12]</ref> and integrates seamlessly with HuggingFace models and datasets. The core components are (1) the Fault Injector, which is the central interface for fault injection, (2) the Fault Modules, or BaseFault subclasses that implement different injection mechanisms, (3) the Experiment Runner, which coordinates injection, evaluation, and results logging with consistent configuration of faults, datasets, and performance metrics, (4) the Metrics class, including latency, accuracy, and perplexity, and (5) the visualization module, which converts experimental results into visual plots. Each component is designed to be extensible, encouraging users to develop and test custom faults for different model architectures or tasks. Users can also design their own metrics to best suit their research goals.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. FAULT TYPES</head><p>GoldenTransformer supports a diverse set of fault models, including (1) layer-level faults such as attention mask corruptions or dropout faults, (2) activation-level faults such as clamp, noise, or random-zero corruption, (3) weight-level faults such as bit flips or random corruptions, and (4) attentionspecific faults including mask noise corruptions or head dropout. Each type of fault exposes a severity parameter which controls the intensity or probability of the fault. For bit-flip faults, severity represents the probability of flipping a bit in the mantissa of a floating-point weight. For activation faults, the severity may control the magnitude of the noise or the fraction of activations affected. This allows researchers to systematically study the relationship between fault intensity and model degradation. Further faults may be designed and implemented by users as subclasses of the Base Fault. Thus, GoldenTransformer allows for completely customized experimental investigation of Transformer-based models through an easily extended base architecture.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. DEMONSTRATION AND USE</head><p>Fault injection is model-aware and adapts based on layer structure. For instance, LayerFault checks for layer lists named transformer.h or transformer, ensuring compatibility. To ensure safe and reversible fault injection, the framework clones the original parameters when needed and supports fault rollback via a reversion method. Metric logging is handled by extensible classes such as Accuracy and LatencyMetric, which can be composed for multi-metric evaluation. Users may also design their own custom metrics in order to evaluate their model as best suits their needs. Experiments can be configured with batch size, number of samples, and device target. Results are stored in timestamped directories with JSON logs, enabling reproducibility and easy tracking of experimental progress.</p><p>The code 1 demonstrates a basic experiment setup using a HuggingFace model and the IMDB dataset. Users define the model, tokenizer, dataset, and list of faults to test. These are passed to the ExperimentRunner, which logs and stores the results in a timestamped directory. Output metrics include accuracy, latency, and confidence intervals.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. EXPERIMENTS</head><p>We conducted two experiments to evaluate the functionality and insight generation capabilities of GoldenTransformer. These experiments are designed as proof-of-concept evaluations and reflect preliminary results, with small-scale test samples used to enable rapid iteration and early understanding of transformer robustness profiles. While not definitive, the results demonstrate the framework's flexibility across tasks and model architectures, as well as its capacity to surface meaningful differences in fault tolerance across layers. Furthermore, they demonstrate the nuanced robustness of transformers, offering insights that could guide future designs for faulttolerant AI systems.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Classification under Weight Faults (IMDB)</head><p>To assess GoldenTransformer's capacity to inject and track faults in classification models, we performed a series of weight corruption experiments on the textattack/distilbertbase-uncased-imdb model. This is a distilled version of BERT fine-tuned on the IMDB sentiment analysis dataset, allowing us to extend our framework beyond GPT-2 and demonstrate its applicability across encoder-only transformer architectures. We injected random Gaussian noise into the weights of the model with a fixed corruption probability p, targeting each of the first 10 transformer layers individually. To control for variability in fault placement, we conducted 30 separate trials for each layer, varying the random seed from 42 to 71, and reported mean accuracy along with standard deviation to generate error bars. We used a randomly selected 50sample subset from the IMDB test split for inference. At p = 0.05, random noise degraded the model's accuracy across all layers, with average accuracy falling below the baseline in every case, as shown in Figure <ref type="figure" target="#fig_2">1</ref>. All ten layers produced a statistically significant drop in accuracy, with non-overlapping error bars and a mean far below the baseline. Interestingly, layer 1 exhibited the lowest average accuracy but also the highest variance, suggesting early-layer corruption may lead to inconsistent but sometimes severe performance degradation. At p = 0.1, the degradation effects were amplified and more consistent. All layers showed statistically significant drops in accuracy, with confidence intervals completely below the baseline and smaller standard error than layers in the previous experiment. These experiments reinforce the notion of layerdependent vulnerability, where some layers are more sensitive to fault injection than others-an insight that underscores GoldenTransformer's capacity to reveal fine-grained structural robustness within transformer models. The results also highlight the complexity of fault tolerance in deep learning models and suggest that further, more systematic studies-potentially with larger datasets and repeated trials-are needed to fully characterize the relationship between fault severity and model robustness.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Perplexity under Layerwise Bit Flips</head><p>We conducted a proof-of-concept fault injection experiment using the pretrained GPT-2 (117M) model from HuggingFace. To test sensitivity in a different modality and task, we applied GoldenTransformer to GPT-2 with greedy decoding (temperature 0) on the Wikitext2 language modeling benchmark, selecting the first 100 nonempty lines from the test split, truncating them to 32 tokens each, and injecting single-bit faults (restricted to mantissa bits) into the first 10 transformer layers, again using 30 seeds (42-71) for robustness. The evaluation metric was log-scale perplexity. As shown in Figure <ref type="figure" target="#fig_3">2</ref>, only layer index 7 caused a statistically significant increase in perplexity-all other 95% confidence intervals overlapped with the baseline. Although GPT2 appears resilient to low-level mantissa bit flips as there was variable impact on model perplexity, even small numerical perturbations can subtly affect its language modeling performance.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VII. DISCUSSION</head><p>One of the primary implications is the differential sensitivity across layers, which challenges the assumption that transformer layers contribute equally or symmetrically to model That said, the current methodology has limitations. The Gaussian noise model is synthetic and does not fully capture the spectrum of real-world bit-level faults, and the experiments assume a relatively static architecture. Future work could expand this to dynamic tasks, real hardware, and alternative corruption patterns.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VIII. CONCLUSION</head><p>GoldenTransformer is a modular, extensible, and LLMspecific fault injection framework that provides researchers and engineers with tools to evaluate and improve the resilience of transformer-based models. We injected random Gaussian noise into the weights of a finetuned DistilBERT model and evaluated on the IMDB sentiment classification dataset, observing significant degradation in classification accuracy across all layers. However, some layers observed more variability and more significant drops in accuracy, suggesting nonuniform layer sensitivity to fault injections. We also conducted layerwise mantissa bit flips on a pretrained GPT2 117M model applied on the Wikitext2 benchmark, observing resulting changes in log-scale model perplexity, and did not see significant impact. This result indicates that more systematic exploration is required to observe the effect of bit-flip faults in generative LLMs. Importantly, GoldenTransformer is not merely a diagnostic tool; it opens a potential design loop. Its findings could guide targeted model compression or faultaware finetuning. Moreover, from a systems perspective, the framework could be adapted to quantify reliability under hardware noise or adversarial conditions, especially for safetycritical or resource-constrained environments.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>ACKNOWLEDGMENT</head><p>The author would like to thank Dr. Xun Jiao and Mr. Jinghao Wen at Villanova University for their mentorship and advice in this project.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head></head><label></label><figDesc>.run() Listing 1: GoldenTransformer Demonstration.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 1 :</head><label>1</label><figDesc>Fig. 1: DistilBERT on IMDB under Random Noise Injections with p = 0.1 (left) and p = 0.05 (right).</figDesc><graphic coords="3,48.96,50.54,125.53,125.53" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Fig. 2 :</head><label>2</label><figDesc>Fig. 2: Perplexity under Layerwise Bit-Flip Faults for GPT2 on Wikitext2</figDesc><graphic coords="3,374.74,50.54,125.53,125.53" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Goldeneye: A platform for evaluating emerging numerical data formats in dnn accelerators</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mahmoud</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Tambe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Aloui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Brooks</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G.-Y</forename><surname>Wei</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2022 52nd Annual IEEE/IFIP International Conference on Dependable Systems and Networks (DSN)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="206" to="214" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Understanding error propagation in deep learning neural network (dnn) accelerators and applications</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">K S</forename><surname>Hari</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sullivan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Tsai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pattabiraman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Emer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">W</forename><surname>Keckler</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">SC17: International Conference for High Performance Computing, Networking, Storage and Analysis</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1" to="12" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Tensorfi: A flexible fault injection framework for tensorflow applications</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Narayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pattabiraman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>De-Bardeleben</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2020 IEEE 31st International Symposium on Software Reliability Engineering (ISSRE)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="426" to="435" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Tensorfi: A configurable fault injector for tensorflow applications</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pattabiraman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Debardeleben</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 IEEE International symposium on software reliability engineering workshops (ISSREW)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="313" to="320" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Fault injection for tensorflow applications</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Narayanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pattabiraman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>De-Bardeleben</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Dependable and Secure Computing</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="2677" to="2695" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Pytorchfi: A runtime perturbation tool for dnns</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Mahmoud</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Aggarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Nobbe</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R S</forename><surname>Vicarte</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">V</forename><surname>Adve</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">W</forename><surname>Fletcher</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Frosio</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">K S</forename><surname>Hari</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2020 50th Annual IEEE/IFIP International Conference on Dependable Systems and Networks Workshops (DSN-W)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="25" to="31" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Binfi: an efficient fault injector for safety-critical machine learning systems</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pattabiraman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Debardeleben</surname></persName>
+		</author>
+		<idno type="DOI">10.1145/3295500.3356177</idno>
+		<ptr target="https://doi.org/10.1145/3295500.3356177" />
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis, ser. SC &apos;19</title>
+		<meeting>the International Conference for High Performance Computing, Networking, Storage and Analysis, ser. SC &apos;19<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Textattack: A framework for adversarial attacks in natural language processing</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">X</forename><surname>Morris</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Lifland</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">Y</forename><surname>Yoo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Qi</surname></persName>
+		</author>
+		<idno>abs/2005.05909</idno>
+		<ptr target="https://arxiv.org/abs/2005.05909" />
+	</analytic>
+	<monogr>
+		<title level="j">CoRR</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Seq2sick: Evaluating the robustness of sequence-to-sequence models with adversarial examples</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Yi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Hsieh</surname></persName>
+		</author>
+		<idno>abs/1803.01128</idno>
+		<ptr target="http://arxiv.org/abs/1803.01128" />
+	</analytic>
+	<monogr>
+		<title level="j">CoRR</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">On evaluation of adversarial perturbations for sequence-to-sequence models</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Michel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Neubig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Pino</surname></persName>
+		</author>
+		<idno>abs/1903.06620</idno>
+		<ptr target="http://arxiv.org/abs/1903.06620" />
+	</analytic>
+	<monogr>
+		<title level="j">CoRR</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Autodan: Generating stealthy jailbreak prompts on aligned large language models</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Xiao</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/2310.04451" />
+		<imprint>
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Pytorch: An imperative style, highperformance deep learning library</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Paszke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Gross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><surname>Massa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lerer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bradbury</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Chanan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Killeen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Gimelshein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Antiga</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Desmaison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Köpf</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">Z</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Devito</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Raison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Tejani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chilamkurthy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Steiner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Bai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Chintala</surname></persName>
+		</author>
+		<ptr target="http://arxiv.org/abs/1912.01703" />
+	</analytic>
+	<monogr>
+		<title level="j">CoRR</title>
+		<imprint>
+			<date type="published" when="1703">1912.01703. 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

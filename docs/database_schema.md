@@ -258,13 +258,13 @@ Databases without indexes on foreign keys and filter columns become unusably slo
 
 These entities were considered and consciously deferred. Each can be added later as a new table without disturbing the existing schema.
 
-| Entity          | Deferred to | Reason |
-| --------------- | ----------- | ------ |
-| `Claim`         | Week 5      | Quantitative results extraction separate from checklist findings |
-| `Table`, `Figure` | Week 6    | Table understanding and figure extraction |
-| `User`, `Auth`  | Out of scope | Multi-tenancy is not a Week 1 goal |
-| Vector embeddings on Section | Week 7+ | Semantic search over sections |
-| Full-text search (tsvector) | Week 6 | Faceted paper search |
+| Entity                       | Deferred to  | Reason                                                           |
+| ---------------------------- | ------------ | ---------------------------------------------------------------- |
+| `Claim`                      | Week 5       | Quantitative results extraction separate from checklist findings |
+| `Table`, `Figure`            | Week 6       | Table understanding and figure extraction                        |
+| `User`, `Auth`               | Out of scope | Multi-tenancy is not a Week 1 goal                               |
+| Vector embeddings on Section | Week 7+      | Semantic search over sections                                    |
+| Full-text search (tsvector)  | Week 6       | Faceted paper search                                             |
 
 ---
 
