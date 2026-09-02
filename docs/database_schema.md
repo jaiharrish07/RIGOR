@@ -1,4 +1,4 @@
-# RIGOR — Database Schema
+﻿# RIGOR — Database Schema
 
 **Version:** 1.0
 **Last updated:** August 26, 2026
@@ -19,7 +19,7 @@ RIGOR stores every uploaded research paper across **five tables**. Each table re
 | `audits`    | A single audit run over a paper                    | 0 to many                |
 | `findings`  | One verdict per checklist item within an audit     | ~25 per audit            |
 
-Total: **72 fields** across the 5 tables (excluding relationships).
+Total: **78 fields** across the 5 tables (excluding relationships) — 23 + 13 + 13 + 12 + 17.
 
 ## Design principles
 

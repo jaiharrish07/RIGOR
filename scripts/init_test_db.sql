@@ -1,0 +1,11 @@
+-- Creates the database pytest uses.
+--
+-- Runs once, on first initialisation of the Postgres data volume (Docker only
+-- executes /docker-entrypoint-initdb.d when the volume is empty). tests/conftest.py
+-- connects to TEST_DATABASE_URL and creates the *tables* itself, but it cannot
+-- create the database -- so it has to exist before the suite runs.
+--
+-- Without this, a fresh clone fails with:
+--   psycopg.OperationalError: database "rigor_test" does not exist
+-- which week1_lokesh.md works around with a manual `psql -c "CREATE DATABASE"`.
+CREATE DATABASE rigor_test;

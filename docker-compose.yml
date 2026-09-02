@@ -4,15 +4,21 @@
     container_name: rigor-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: rigor
-      POSTGRES_PASSWORD: rigor
-      POSTGRES_DB: rigor
+      # Sourced from .env so the container's credentials and the app's
+      # DATABASE_URL cannot drift apart. The defaults match .env.example, so
+      # `docker compose up` still works before anyone has written a .env.
+      POSTGRES_USER: ${POSTGRES_USER:-rigor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rigor}
+      POSTGRES_DB: ${POSTGRES_DB:-rigor}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Creates the rigor_test database pytest needs. Only runs when the data
+      # volume is empty, i.e. on first `docker compose up`.
+      - ./scripts/init_test_db.sql:/docker-entrypoint-initdb.d/10-init-test-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rigor -d rigor"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rigor} -d ${POSTGRES_DB:-rigor}"]
       interval: 5s
       timeout: 5s
       retries: 5
