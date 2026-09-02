@@ -11,7 +11,7 @@
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rigor}
       POSTGRES_DB: ${POSTGRES_DB:-rigor}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       # Creates the rigor_test database pytest needs. Only runs when the data
