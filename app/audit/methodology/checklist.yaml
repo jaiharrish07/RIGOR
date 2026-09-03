@@ -1,0 +1,185 @@
+# RIGOR Methodology Completeness Checklist
+# Version 1.0
+
+version: "1.0"
+categories:
+
+  hyperparameters:
+    weight: 0.25
+    display_name: "Hyperparameters"
+    items:
+      - id: hyperparameter.learning_rate
+        display: "Learning rate"
+        description: "The numerical learning rate value(s) used during training, including any schedule."
+        aliases: ["lr", "learning rate", "step size", "eta"]
+        required: true
+
+      - id: hyperparameter.batch_size
+        display: "Batch size"
+        description: "Training batch size, per-device and total if distributed."
+        aliases: ["batch size", "minibatch size", "global batch size"]
+        required: true
+
+      - id: hyperparameter.optimizer
+        display: "Optimizer"
+        description: "Optimizer name (SGD, Adam, AdamW, LAMB, etc.)."
+        aliases: ["optimizer", "optimiser"]
+        required: true
+
+      - id: hyperparameter.epochs
+        display: "Training duration"
+        description: "Number of epochs, steps, or tokens seen during training."
+        aliases: ["epochs", "steps", "iterations", "training steps"]
+        required: true
+
+      - id: hyperparameter.weight_decay
+        display: "Weight decay / L2 regularization"
+        description: "Weight decay coefficient, if used."
+        aliases: ["weight decay", "L2 regularization"]
+        required: false
+
+      - id: hyperparameter.lr_schedule
+        display: "LR warmup / schedule"
+        description: "Warmup steps, decay type (cosine, linear, step), and schedule details."
+        aliases: ["warmup", "warm-up", "learning rate schedule", "cosine schedule"]
+        required: false
+
+  architecture:
+    weight: 0.20
+    display_name: "Model Architecture"
+    items:
+      - id: architecture.family
+        display: "Architecture family"
+        description: "Family name: Transformer, ResNet, U-Net, MLP-Mixer, etc."
+        aliases: ["architecture", "model family"]
+        required: true
+
+      - id: architecture.layer_count
+        display: "Layer count"
+        description: "Number of layers, blocks, or stages."
+        aliases: ["layers", "blocks", "depth", "N ="]
+        required: true
+
+      - id: architecture.hidden_dim
+        display: "Hidden dimensions"
+        description: "Hidden dimensions, embedding sizes, channel counts."
+        aliases: ["hidden size", "d_model", "embedding dim", "channels"]
+        required: true
+
+      - id: architecture.activation
+        display: "Activation function"
+        description: "Activation functions used (ReLU, GELU, SwiGLU, etc.)."
+        aliases: ["activation", "nonlinearity"]
+        required: false
+
+      - id: architecture.normalization
+        display: "Normalization"
+        description: "LayerNorm, BatchNorm, RMSNorm, GroupNorm, or none."
+        aliases: ["layer norm", "batch norm", "normalization"]
+        required: false
+
+  data:
+    weight: 0.20
+    display_name: "Data"
+    items:
+      - id: data.source
+        display: "Dataset source"
+        description: "Dataset name, source URL, or citation."
+        aliases: ["dataset", "corpus"]
+        required: true
+
+      - id: data.splits
+        display: "Train/test splits"
+        description: "How train/validation/test were separated (ratios, seed, stratification)."
+        aliases: ["train/test split", "split", "validation split"]
+        required: true
+
+      - id: data.preprocessing
+        display: "Preprocessing"
+        description: "Tokenization, resizing, normalization, cleaning steps."
+        aliases: ["preprocessing", "tokenization", "normalization"]
+        required: true
+
+      - id: data.augmentation
+        display: "Data augmentation"
+        description: "Data augmentation policy applied during training."
+        aliases: ["augmentation", "data augmentation"]
+        required: false
+
+  training:
+    weight: 0.15
+    display_name: "Training Procedure"
+    items:
+      - id: training.hardware
+        display: "Hardware"
+        description: "GPU type and count, TPU, or CPU used for training."
+        aliases: ["GPU", "hardware", "TPU"]
+        required: false
+
+      - id: training.framework
+        display: "Framework"
+        description: "PyTorch, JAX, TensorFlow with version."
+        aliases: ["PyTorch", "TensorFlow", "JAX", "framework"]
+        required: false
+
+      - id: training.random_seed
+        display: "Random seed"
+        description: "Seed(s) used; note if fixed or varied across runs."
+        aliases: ["seed", "random seed", "np.random.seed"]
+        required: true
+
+      - id: training.stopping_criterion
+        display: "Stopping criterion"
+        description: "Early stopping condition, or explicit 'trained for N steps'."
+        aliases: ["early stopping", "convergence", "stopping"]
+        required: false
+
+  evaluation:
+    weight: 0.15
+    display_name: "Evaluation"
+    items:
+      - id: evaluation.test_set
+        display: "Test set identity"
+        description: "Which specific test set was used (standard split or custom)."
+        aliases: ["test set", "held-out"]
+        required: true
+
+      - id: evaluation.metric_definitions
+        display: "Metric definitions"
+        description: "Precise metric definitions (macro vs micro F1, top-1 vs top-5)."
+        aliases: ["F1", "accuracy", "BLEU", "AUC", "metrics"]
+        required: true
+
+      - id: evaluation.run_count
+        display: "Run count"
+        description: "Number of independent runs, or explicit 'single run'."
+        aliases: ["runs", "seeds", "averaged over"]
+        required: true
+
+      - id: evaluation.statistical_treatment
+        display: "Statistical treatment"
+        description: "Mean ± std, confidence intervals, significance tests."
+        aliases: ["std", "standard deviation", "confidence interval", "p-value"]
+        required: false
+
+  availability:
+    weight: 0.05
+    display_name: "Availability"
+    items:
+      - id: availability.code_link
+        display: "Code available"
+        description: "URL to code repository."
+        aliases: ["code available", "github", "repository"]
+        required: true
+
+      - id: availability.data_link
+        display: "Data available"
+        description: "URL to dataset or clear pointer to standard dataset."
+        aliases: ["dataset available", "data link"]
+        required: true
+
+      - id: availability.license
+        display: "License declared"
+        description: "Code license declared."
+        aliases: ["license", "MIT", "Apache"]
+        required: false
