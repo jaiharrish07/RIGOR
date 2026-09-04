@@ -14,6 +14,7 @@ from sqlalchemy import text
 
 from app.config import settings
 from app.db.session import engine
+from app.api.papers import router as papers_router
 
 # Version comes from package metadata rather than a hardcoded literal.
 try:
@@ -37,6 +38,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Register API routes
+app.include_router(papers_router)
 
 @app.get("/health")
 def health() -> dict:
