@@ -38,7 +38,7 @@ class Settings(BaseSettings):
         description="API key for Groq LLM service.",
     )
     groq_model: str = Field(
-        default="llama-3.3-70b-versatile",
+        default="openai/gpt-oss-120b",
         description="Groq model identifier.",
     )
 
@@ -48,7 +48,7 @@ class Settings(BaseSettings):
         description="API key for OpenRouter LLM fallback service.",
     )
     openrouter_model: str = Field(
-        default="meta-llama/llama-4-maverick:free",
+        default="meta-llama/llama-3.3-70b-instruct:free",
         description="OpenRouter model identifier (fallback).",
     )
 

@@ -30,6 +30,8 @@ app = FastAPI(
 )
 
 # CORS — permissive during Week 1 dev. Locked down later.
+# NOTE: confirm allow_credentials against docs/api_contract.md before Week 3 —
+# an earlier branch set this to False, claiming the contract specifies it.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -41,12 +43,19 @@ app.add_middleware(
 # Register API routes
 app.include_router(papers_router)
 
+
 @app.get("/health")
 def health() -> dict:
     """Report the service's health and the status of each dependency.
 
     Always returns HTTP 200 — the field values, not the status code,
     tell you what's up. This is what Docker and monitoring check.
+
+    NOTE: docs/api_contract.md names the `grobid` field but does not specify
+    the probe, timeout, or success condition (gap C2). This uses GROBID's
+    documented /api/isalive endpoint, checking that the body equals "true"
+    with a short timeout — confirm this matches the contract if it's ever
+    formalized further.
     """
     # Check Postgres by running a trivial query.
     try:
