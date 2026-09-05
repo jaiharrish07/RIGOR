@@ -30,7 +30,10 @@
     ports:
       - "8070:8070"
     environment:
-      JAVA_OPTS: "-Xmx4g"
+      # -XX:-UseContainerSupport works around a known GROBID 0.8.1 crash
+      # (NullPointerException in CgroupV2Subsystem) on hosts using cgroups v2,
+      # which is the default on newer Docker Desktop / WSL2 setups.
+      JAVA_OPTS: "-Xmx4g -XX:-UseContainerSupport"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8070/api/isalive"]
       interval: 30s
